@@ -11,8 +11,8 @@ var moment = require('moment');
 
 // page
 router.get('/', function(req, res, next) {
-	let host = request.getHeader('Host');
-	logger.error(host);
+	// let host = req.getHeader('Host');
+	logger.info("hostname：", req.hostname);
 	res.end('wxWebMobileTest');
 });
 
