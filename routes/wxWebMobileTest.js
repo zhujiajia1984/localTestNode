@@ -11,16 +11,36 @@ var moment = require('moment');
 
 // page
 router.get('/', function(req, res, next) {
-	logger.info("wxWeb page");
+	let host = request.getHeader('Host');
+	logger.error(host);
 	res.end('wxWebMobileTest');
 });
 
 ////////////////////////////////////////////////////
 // 获取config所需的签名等信息
 router.get('/getConfigSign', function(req, res, next) {
-	logger.error("wxWeb page2");
-	res.end('wxWebMobileTest2');
+	getRandomData().then((stdout) => {
+		logger.info(stdout);
+	})
+	res.end('getConfigSign');
 });
+
+
+
+////////////////////////////////////////////////////
+// 获取随机值
+function getRandomData() {
+	return new Promise((resolve, reject) => {
+		let cmd = 'head -n 80 /dev/urandom | tr -dc A-Za-z0-9 | head -c 16';
+		childProc.exec(cmd, (err, stdout, stderr) => {
+			if (stderr) {
+				return reject(err);
+			} else {
+				return resolve(stdout);
+			}
+		})
+	})
+}
 
 //
 module.exports = router;
