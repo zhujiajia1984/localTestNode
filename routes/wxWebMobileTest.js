@@ -1,13 +1,14 @@
 /**
  * Created by zjj on 2018/3/1
- * 页面：http://localhost:18159/wxWebMobileTest
- * 获取config所需的签名接口：http://localhost:18159/wxWebMobileTest/getConfigSign
+ * 页面：http://test.weiquaninfo.cn/wxWebMobileTest
+ * 获取config所需的签名接口：http://test.weiquaninfo.cn/wxWebMobileTest/getConfigSign
  */
 var express = require('express');
 var router = express.Router();
 var logger = require('../logs/log4js').logger;
 var childProc = require('child_process');
 var moment = require('moment');
+var redisClient = require('../redis');
 
 // page
 router.get('/', function(req, res, next) {
@@ -19,13 +20,18 @@ router.get('/', function(req, res, next) {
 ////////////////////////////////////////////////////
 // 获取config所需的签名等信息
 router.get('/getConfigSign', function(req, res, next) {
-	getRandomData().then((stdout) => {
-		logger.info(stdout);
+	let signData = {};
+	signData.timestamp = moment().unix();
+	signData.url = 'https://www.weiquaninfo.cn/wxWebMobileTest';
+	getRandomData().then((noncestr) => {
+		signData.noncestr = noncestr;
+		return getJsapiTicket();
+	}).then((jsapi_ticket) => {
+		signData.jsapi_ticket = jsapi_ticket;
+		// logger.info(signData);
 	})
 	res.end('getConfigSign');
 });
-
-
 
 ////////////////////////////////////////////////////
 // 获取随机值
@@ -39,6 +45,21 @@ function getRandomData() {
 				return resolve(stdout);
 			}
 		})
+	})
+}
+
+////////////////////////////////////////////////////
+// 获取jsapi_ticket
+function getJsapiTicket() {
+	return new Promise((resolve, reject) => {
+		redisClient.get('jsapi_ticket', (error, resData) => {
+			if (error) {
+				logger.error(error);
+				return reject(error);
+			} else {
+				return resolve(JSON.parse(resData));
+			}
+		});
 	})
 }
 
