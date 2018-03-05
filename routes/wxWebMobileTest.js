@@ -9,6 +9,7 @@ var logger = require('../logs/log4js').logger;
 var childProc = require('child_process');
 var moment = require('moment');
 var redisClient = require('../redis');
+var crypto = require('crypto');
 
 // page
 router.get('/', function(req, res, next) {
@@ -22,15 +23,25 @@ router.get('/', function(req, res, next) {
 router.get('/getConfigSign', function(req, res, next) {
 	let signData = {};
 	signData.timestamp = moment().unix();
-	signData.url = 'https://www.weiquaninfo.cn/wxWebMobileTest';
+	signData.url = 'http://test.weiquaninfo.cn/wxWebMobileTest';
 	getRandomData().then((noncestr) => {
 		signData.noncestr = noncestr;
 		return getJsapiTicket();
 	}).then((jsapi_ticket) => {
-		signData.jsapi_ticket = jsapi_ticket;
-		// logger.info(signData);
+		// 拼接
+		let string1 = `jsapi_ticket=${jsapi_ticket}&noncestr=${signData.noncestr}&timestamp=${signData.timestamp}&url=${signData.url}`;
+		// sha1加密
+		let hash = crypto.createHash('sha1');
+		hash.update(string1);
+		let signature = hash.digest('hex');
+		signData.signature = signature;
+
+		// 返回
+		res.json(signData);
+	}).catch((error) => {
+		logger.error(error);
+		res.end('error');
 	})
-	res.end('getConfigSign');
 });
 
 ////////////////////////////////////////////////////
