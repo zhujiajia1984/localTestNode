@@ -14,8 +14,7 @@ var crypto = require('crypto');
 // page
 router.get('/', function(req, res, next) {
 	// let host = req.getHeader('Host');
-	logger.info("hostname：", req.hostname);
-	res.end('wxWebMobileTest');
+	res.render('wxWebMobileTest');
 });
 
 ////////////////////////////////////////////////////
@@ -23,26 +22,48 @@ router.get('/', function(req, res, next) {
 router.get('/getConfigSign', function(req, res, next) {
 	let signData = {};
 	signData.timestamp = moment().unix();
-	signData.url = 'http://test.weiquaninfo.cn/wxWebMobileTest';
-	getRandomData().then((noncestr) => {
-		signData.noncestr = noncestr;
-		return getJsapiTicket();
-	}).then((jsapi_ticket) => {
-		// 拼接
-		let string1 = `jsapi_ticket=${jsapi_ticket}&noncestr=${signData.noncestr}&timestamp=${signData.timestamp}&url=${signData.url}`;
-		// sha1加密
+	signData.url = 'http://test.weiquaninfo.cn/wxWebMobileTest/';
+	getSignData(signData).then((result) => {
+		signData.noncestr = result.noncestr;
+		signData.jsapi_ticket = result.jsapi_ticket;
+		logger.info(signData);
+		let string1 = `jsapi_ticket=${signData.jsapi_ticket}&noncestr=${signData.noncestr}&timestamp=${signData.timestamp}&url=${signData.url}`;
 		let hash = crypto.createHash('sha1');
 		hash.update(string1);
 		let signature = hash.digest('hex');
 		signData.signature = signature;
-
-		// 返回
 		res.json(signData);
 	}).catch((error) => {
 		logger.error(error);
-		res.end('error');
+		res.end("error");
 	})
+	// getRandomData().then((noncestr) => {
+	// 	signData.noncestr = noncestr;
+	// 	return getJsapiTicket();
+	// }).then((jsapi_ticket) => {
+	// 	// 拼接
+	// 	let string1 = `jsapi_ticket=${jsapi_ticket}&noncestr=${signData.noncestr}&timestamp=${signData.timestamp}&url=${signData.url}`;
+	// 	// sha1加密
+	// 	let hash = crypto.createHash('sha1');
+	// 	hash.update(string1);
+	// 	let signature = hash.digest('hex');
+	// 	signData.signature = signature;
+
+	// 	// 返回
+	// 	res.json(signData);
+	// }).catch((error) => {
+	// 	logger.error(error);
+	// 	res.end('error');
+	// })
 });
+
+////////////////////////////////////////////////////
+// 获取所有签名所需要的数据
+async function getSignData(signData) {
+	const noncestr = await getRandomData();
+	const jsapi_ticket = await getJsapiTicket();
+	return { noncestr: noncestr, jsapi_ticket: jsapi_ticket };
+}
 
 ////////////////////////////////////////////////////
 // 获取随机值
