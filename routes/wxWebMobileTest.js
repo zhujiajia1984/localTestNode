@@ -1,7 +1,7 @@
 /**
  * Created by zjj on 2018/3/1
- * 页面：http://test.weiquaninfo.cn/wxWebMobileTest
- * 获取config所需的签名接口：http://test.weiquaninfo.cn/wxWebMobileTest/getConfigSign
+ * 页面：https://test.weiquaninfo.cn/wxWebMobileTest
+ * 获取config所需的签名接口：https://test.weiquaninfo.cn/wxWebMobileTest/getConfigSign
  */
 var express = require('express');
 var router = express.Router();
@@ -22,7 +22,7 @@ router.get('/', function(req, res, next) {
 router.get('/getConfigSign', function(req, res, next) {
 	let signData = {};
 	signData.timestamp = moment().unix();
-	signData.url = 'http://test.weiquaninfo.cn/wxWebMobileTest/';
+	signData.url = 'https://test.weiquaninfo.cn/wxWebMobileTest/';
 	getSignData(signData).then((result) => {
 		signData.noncestr = result.noncestr;
 		signData.jsapi_ticket = result.jsapi_ticket;
