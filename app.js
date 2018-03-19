@@ -12,6 +12,7 @@ var cors = require('cors');
 var index = require('./routes/index');
 var wxWebMobileTest = require('./routes/wxWebMobileTest');
 var mongoTest = require('./routes/mongoTest');
+var yunac = require('./routes/yunac');
 
 //
 var app = express();
@@ -34,7 +35,13 @@ app.use(express.static(path.join(__dirname, 'public'), {
 }));
 
 // 页面路由
-app.use('/', index);
+app.use(['/', '/index', '/apManage', '/groupManage', '/apUser', '/testYunAc', '/getwxinfo',
+    '/pwdReset', '/peizhi', '/apType', '/tzManage', '/tzType', '/apUser',
+    '/version', '/versionType', '/profile', '/editPwd', '/logSystem',
+    '/logOperation', '/subClient', '/subRole', '/subAccount', '/account',
+    '/hometongji', '/msgCenter', '/apMonitor', './editWxLogin', '/apConfig',
+    '/ssidEdit', '/devmap'
+], yunac);
 app.use('/wxWebMobileTest', wxWebMobileTest);
 app.use('/mongo', mongoTest);
 
