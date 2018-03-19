@@ -8,55 +8,33 @@ var router = express.Router();
 var logger = require('../logs/log4js').logger;
 var assert = require('assert');
 
+// class
+const Client = require('./yunacTool/Client');
+
 //
 const MongoClient = require('mongodb').MongoClient;
 const url = 'mongodb://mongodb_mongodb_1:27017';
+// const url = 'mongodb://localhost:27017';
 
 // home page
 router.get('/', function(req, res, next) {
-    logger.info("welcome use mongo");
+    // logger.info(new Point(11, 22).toString());
     res.send('welcome use mongo');
 });
 
 ////////////////////////////////////////////////////
-// 连接数据库
-router.get('/connect', function(req, res, next) {
-    insertDocs().then(client => {
-        const db = client.db('test');
+// 新增客户
+router.get('/addClient', function(req, res, next) {
+    let client = new Client(url);
+    client.addClient("234").then(client => {
         client.close();
-        logger.info("Connected successfully to server");
+        logger.info("add client success");
+        res.send("success");
     }).catch(error => {
         logger.error(error);
+        res.send(error);
     })
-    // MongoClient.connect(url, (err, client) => {
-    //     assert.equal(null, err);
-    //     logger.info("Connected successfully to server");
-
-    //     //
-    //     const db = client.db('test');
-    //     const collection = db.collection('users');
-    //     collection.insertMany([
-    //         { a: 1 }, { a: 2 }, { a: 3 }
-    //     ], (err, result) => {
-    //         assert.equal(err, null);
-    //         assert.equal(3, result.result.n);
-    //         assert.equal(3, result.ops.length);
-    //         logger.info("Inserted 3 documents into the collection");
-
-    //         //
-    //         client.close();
-    //         //
-    //         res.send('connect to mongo ok and close !');
-    //     });
-    // });
 });
-
-////////////////////////////////////////////////////
-// async函数1
-async function insertDocs() {
-    return await MongoClient.connect(url);
-}
-
 
 //
 module.exports = router;
