@@ -13,6 +13,7 @@ var index = require('./routes/index');
 var wxWebMobileTest = require('./routes/wxWebMobileTest');
 var mongoTest = require('./routes/mongoTest');
 var yunac = require('./routes/yunac');
+var mapHeat = require('./routes/mapHeat');
 
 //
 var app = express();
@@ -44,6 +45,7 @@ app.use(['/', '/index', '/apManage', '/groupManage', '/apUser', '/testYunAc', '/
 ], yunac);
 app.use('/wxWebMobileTest', wxWebMobileTest);
 app.use('/mongo', mongoTest);
+app.use('/mapHeat', mapHeat);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
