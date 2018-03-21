@@ -3,14 +3,12 @@
 let conn = new Mongo("mongodb_mongodb_1:27017");
 let db = conn.getDB("test");
 
-// 先删除客户表
-printjson(db.client.drop());
-
 // 客户表（表结构定义+索引）
-printjson(db.createCollection("client", {
+printjson(db.client.drop());
+db.createCollection("client", {
     validator: {
         $jsonSchema: {
-            required: ["name"],
+            required: ["name", "createTime", "lastModified"],
             properties: {
                 name: {
                     bsonType: "string",
@@ -22,13 +20,19 @@ printjson(db.createCollection("client", {
                     bsonType: "string",
                     maxLength: 32,
                     description: "must be a string、max 32 bytes"
+                },
+                createTime: {
+                    bsonType: "date"
+                },
+                lastModified: {
+                    bsonType: "date"
                 }
             }
         }
     }
-}));
-printjson(db.client.createIndex({ name: 1 }, {
+});
+db.client.createIndex({ name: 1 }, {
     background: true,
     unique: true,
     name: 'name_index'
-}));
+});

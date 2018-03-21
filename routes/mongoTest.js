@@ -1,7 +1,7 @@
 /**
  * Created by zjj on 2018/3/18
- * 新增客户：post https://test.weiquaninfo.cn/mongo/clients
- * 
+ * 新增客户：post    https://test.weiquaninfo.cn/mongo/clients
+ * 查询客户：get     https://test.weiquaninfo.cn/mongo/clients?name=xxx
  */
 var express = require('express');
 var router = express.Router();
@@ -23,6 +23,20 @@ router.get('/', function(req, res, next) {
 });
 
 ////////////////////////////////////////////////////
+// 查询客户
+router.get('/clients', function(req, res, next) {
+    let data = req.query;
+    //
+    let client = new Client(url);
+    client.findClient(data).then(result => {
+        res.status(200).json(result);
+    }).catch(error => {
+        logger.error(error);
+        res.status(406).json(error);
+    })
+});
+
+////////////////////////////////////////////////////
 // 新增客户
 router.post('/clients', function(req, res, next) {
     let data = req.body;
@@ -32,7 +46,7 @@ router.post('/clients', function(req, res, next) {
         res.status(201).json(result);
     }).catch(error => {
         logger.error(error);
-        res.status(406).send(error);
+        res.status(406).json(error);
     })
 });
 
