@@ -9,11 +9,15 @@ module.exports = class Client {
     }
 
     //
-    async addClient(name) {
+    async addClient(data) {
         const client = await MongoClient.connect(this.url);
         const db = client.db("test");
-        let result = await db.collection('users').insertOne({ name: name });
+        let result = await db.collection('client').insertOne({
+            name: typeof(data.name) == "undefined" ? '' : data.name,
+            shortName: typeof(data.shortName) == "undefined" ? '' : data.shortName
+        });
         assert.equal(1, result.insertedCount);
-        return client;
+        client.close();
+        return result.ops[0];
     }
 }

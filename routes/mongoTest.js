@@ -1,7 +1,7 @@
 /**
  * Created by zjj on 2018/3/18
- * 页面：https://test.weiquaninfo.cn/mongo
- * 连接数据库：https://test.weiquaninfo.cn/mongo/connect
+ * 新增客户：post https://test.weiquaninfo.cn/mongo/clients
+ * 
  */
 var express = require('express');
 var router = express.Router();
@@ -24,15 +24,15 @@ router.get('/', function(req, res, next) {
 
 ////////////////////////////////////////////////////
 // 新增客户
-router.get('/addClient', function(req, res, next) {
+router.post('/clients', function(req, res, next) {
+    let data = req.body;
+    //
     let client = new Client(url);
-    client.addClient("234").then(client => {
-        client.close();
-        logger.info("add client success");
-        res.send("success");
+    client.addClient(data).then(result => {
+        res.status(201).json(result);
     }).catch(error => {
         logger.error(error);
-        res.send(error);
+        res.status(406).send(error);
     })
 });
 
