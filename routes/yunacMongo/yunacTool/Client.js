@@ -29,44 +29,63 @@ module.exports = class Client {
     async findClient(data) {
         const client = await MongoClient.connect(this.url);
         const db = client.db("test");
-        let r;
-        let total;
         if (typeof(data.name) != "undefined") {
             // 根据name查询
-            r = await db.collection('client').find({ name: data.name }).toArray();
+            let r = await db.collection('client').find({ name: data.name }).toArray();
+            client.close();
+            return r;
         } else if (typeof(data.search) != "undefined") {
             // 模糊查询（无name字段但是有search字段）
-            r = await db.collection('client').find({}).sort("lastModified", -1).toArray();
+            let r = await db.collection('client').find({}).sort("lastModified", -1).toArray();
+            client.close();
+            return r;
+        } else if (typeof(data.current) == "undefined" || typeof(data.pageSize) == "undefined") {
+            // 不带参数查询所有，默认20条分页，默认按照末次更新时间倒序
+            let total = await db.collection('client').count();
+            let r = await db.collection('client').find({})
+                .sort("lastModified", -1)
+                .limit(20)
+                .toArray();
+            client.close();
+            let result = {};
+            result.data = r;
+            result.total = total;
+            result.current = 1;
+            result.pageSize = 20;
+            return result;
         } else {
-            // 查询所有
-            total = await db.collection('client').count();
-            let cursor;
-            let endValue;
-            let startValue;
-            for (let i = 0; i < parseInt(data.current); i++) {
-                if (i == 0) {
-                    cursor = await db.collection('client').find({})
+            // 分页查询
+            let total = await db.collection('client').count();
+            let current = parseInt(data.current);
+            let pageSize = parseInt(data.pageSize);
+            let lastValue;
+            let cursor = await db.collection('client').find({})
+                .sort("lastModified", -1)
+                .limit(pageSize);
+            if (current > 1) {
+                for (let i = 1; i < current; i++) {
+                    // 游标移动到底
+                    while (await cursor.hasNext()) {
+                        let tmp = await cursor.next();
+                        lastValue = tmp.lastModified;
+                    }
+                    // 获取下一页数据
+                    cursor = await db.collection('client').find({
+                            lastModified: { $lt: new Date(lastValue) }
+                        })
                         .sort("lastModified", -1)
-                        .limit(parseInt(data.pageSize));
-                } else {
-                    let a = 1;
+                        .limit(pageSize);
                 }
-                await cursor.next();
-                await cursor.next();
-                // r = await cursor.next();
-                await cursor.rewind();
-                r = await cursor.toArray();
-                // endValue = await cursor.next();
-                // r = await cursor.toArray();
-                // startValue = await cursor.next();
-                // console.log(endValue);
             }
+            let r = await cursor.toArray();
+
+            // output
+            client.close();
+            let result = {};
+            result.data = r;
+            result.total = total;
+            return result;
         }
-        client.close();
-        let result = {};
-        result.data = r;
-        result.total = total;
-        return result;
     }
 
     // 更新客户信息
