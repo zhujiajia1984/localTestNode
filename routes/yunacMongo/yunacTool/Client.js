@@ -34,70 +34,19 @@ module.exports = class Client {
             let r = await db.collection('client').find({ name: data.name }).toArray();
             client.close();
             return r;
-        } else if (typeof(data.search) != "undefined") {
-            // 模糊查询（无name字段但是有search字段）
-            let r = await db.collection('client').find({}).sort("lastModified", -1).toArray();
-            client.close();
-            return r;
-        } else if (typeof(data.current) == "undefined" || typeof(data.pageSize) == "undefined") {
-            // 不带参数查询所有，默认20条分页，默认按照末次更新时间倒序
-            let sortField = typeof(data.sortby) == "undefined" ? 'lastModified' : data.sortby;
-            let sortOrder = typeof(data.order) == "undefined" ? -1 : parseInt(data.order);
-            let total = await db.collection('client').count();
-            let r = await db.collection('client').find({})
-                .sort(sortField, sortOrder)
-                .limit(20)
-                .toArray();
-            client.close();
-            let result = {};
-            result.data = r;
-            result.total = total;
-            result.current = 1;
-            result.pageSize = 20;
-            return result;
         } else {
-            // 分页和排序查询
-            let total = await db.collection('client').count();
-            let current = parseInt(data.current);
-            let pageSize = parseInt(data.pageSize);
+            // 分页、排序和模糊查询
+            let current = typeof(data.current) == "undefined" ? 1 : parseInt(data.current);
+            let pageSize = typeof(data.pageSize) == "undefined" ? 20 : parseInt(data.pageSize);
             let sortField = typeof(data.sortby) == "undefined" ? 'lastModified' : data.sortby;
             let sortOrder = typeof(data.order) == "undefined" ? -1 : parseInt(data.order);
-            let lastValue;
-            let cursor = await db.collection('client').find({})
+            let query = (typeof(data.search) == "undefined" || data.search == "undefined") ? {} : { $or: [{ name: { $regex: `${data.search}`, $options: 'i' } }, { shortName: { $regex: `${data.search}`, $options: 'i' } }] };
+            let total = await db.collection('client').find(query).count();
+            let r = await db.collection('client').find(query)
+                .skip((current - 1) * pageSize)
                 .sort(sortField, sortOrder)
-                .limit(pageSize);
-            if (current > 1) {
-                for (let i = 1; i < current; i++) {
-                    switch (sortField) {
-                        case "lastModified":
-                            {
-                                // 游标移动到底
-                                while (await cursor.hasNext()) {
-                                    let tmp = await cursor.next();
-                                    lastValue = tmp.lastModified;
-                                }
-                                // 获取下一页数据（倒序或正序）
-                                if (sortOrder == -1) {
-                                    cursor = await db.collection('client').find({
-                                            lastModified: { $lt: new Date(lastValue) }
-                                        })
-                                        .sort("lastModified", sortOrder)
-                                        .limit(pageSize);
-                                } else {
-                                    cursor = await db.collection('client').find({
-                                            lastModified: { $gt: new Date(lastValue) }
-                                        })
-                                        .sort("lastModified", sortOrder)
-                                        .limit(pageSize);
-                                }
-                                break;
-                            }
-                    }
-
-                }
-            }
-            let r = await cursor.toArray();
-
+                .limit(pageSize)
+                .toArray();
             // output
             client.close();
             let result = {};
