@@ -57,7 +57,6 @@ router.put('/', function(req, res, next) {
         //
         let data = req.body;
         data.id = req.query.id;
-        logger.info("data：", data);
         let client = new Client(url);
         client.updateClient(data).then(result => {
             res.status(201).json(result);

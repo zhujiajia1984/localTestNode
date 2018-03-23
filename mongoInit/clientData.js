@@ -8,9 +8,9 @@ db.getCollection("client").deleteMany({});
 
 // 创建数据
 let data = [];
-for (let i = 0; i < 50; i++) {
+for (let i = 0; i < 10000; i++) {
     let time1 = new Date();
-    let time2 = new Date(time1.getTime() + 1000 * 60 * i); // 加i分钟
+    let time2 = new Date(time1.getTime() - 1000 * 60 * i); // 加i分钟
     data.push({
         name: `测试${i}`,
         shortName: i % 2 == 0 ? '' : `test${i}`,

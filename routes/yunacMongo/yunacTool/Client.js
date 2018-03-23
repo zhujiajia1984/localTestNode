@@ -41,9 +41,11 @@ module.exports = class Client {
             return r;
         } else if (typeof(data.current) == "undefined" || typeof(data.pageSize) == "undefined") {
             // 不带参数查询所有，默认20条分页，默认按照末次更新时间倒序
+            let sortField = typeof(data.sortby) == "undefined" ? 'lastModified' : data.sortby;
+            let sortOrder = typeof(data.order) == "undefined" ? -1 : parseInt(data.order);
             let total = await db.collection('client').count();
             let r = await db.collection('client').find({})
-                .sort("lastModified", -1)
+                .sort(sortField, sortOrder)
                 .limit(20)
                 .toArray();
             client.close();
@@ -54,27 +56,44 @@ module.exports = class Client {
             result.pageSize = 20;
             return result;
         } else {
-            // 分页查询
+            // 分页和排序查询
             let total = await db.collection('client').count();
             let current = parseInt(data.current);
             let pageSize = parseInt(data.pageSize);
+            let sortField = typeof(data.sortby) == "undefined" ? 'lastModified' : data.sortby;
+            let sortOrder = typeof(data.order) == "undefined" ? -1 : parseInt(data.order);
             let lastValue;
             let cursor = await db.collection('client').find({})
-                .sort("lastModified", -1)
+                .sort(sortField, sortOrder)
                 .limit(pageSize);
             if (current > 1) {
                 for (let i = 1; i < current; i++) {
-                    // 游标移动到底
-                    while (await cursor.hasNext()) {
-                        let tmp = await cursor.next();
-                        lastValue = tmp.lastModified;
+                    switch (sortField) {
+                        case "lastModified":
+                            {
+                                // 游标移动到底
+                                while (await cursor.hasNext()) {
+                                    let tmp = await cursor.next();
+                                    lastValue = tmp.lastModified;
+                                }
+                                // 获取下一页数据（倒序或正序）
+                                if (sortOrder == -1) {
+                                    cursor = await db.collection('client').find({
+                                            lastModified: { $lt: new Date(lastValue) }
+                                        })
+                                        .sort("lastModified", sortOrder)
+                                        .limit(pageSize);
+                                } else {
+                                    cursor = await db.collection('client').find({
+                                            lastModified: { $gt: new Date(lastValue) }
+                                        })
+                                        .sort("lastModified", sortOrder)
+                                        .limit(pageSize);
+                                }
+                                break;
+                            }
                     }
-                    // 获取下一页数据
-                    cursor = await db.collection('client').find({
-                            lastModified: { $lt: new Date(lastValue) }
-                        })
-                        .sort("lastModified", -1)
-                        .limit(pageSize);
+
                 }
             }
             let r = await cursor.toArray();
@@ -92,21 +111,19 @@ module.exports = class Client {
     async updateClient(data) {
         const client = await MongoClient.connect(this.url);
         const db = client.db("test");
-        let result = await db.collection('client').findOneAndUpdate({ _id: new ObjectID(data.id) }, {
+        let result = await db.collection('client').updateOne({ _id: new ObjectID(data.id) }, {
             $set: {
                 name: data.name,
                 shortName: typeof(data.shortName) == "undefined" ? '' : data.shortName,
                 lastModified: new Date(),
             }
-        }, {
-            returnOriginal: false,
         });
-        // assert.equal(1, result.matchedCount);
-        // assert.equal(1, result.modifiedCount);
-        assert.equal(1, result.lastErrorObject.n);
-        assert.equal(true, result.lastErrorObject.updatedExisting);
+        assert.equal(1, result.matchedCount);
+        assert.equal(1, result.modifiedCount);
+        // assert.equal(1, result.lastErrorObject.n);
+        // assert.equal(true, result.lastErrorObject.updatedExisting);
         client.close();
-        return result.value;
+        return result;
     }
 
 
