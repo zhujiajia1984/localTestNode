@@ -36,8 +36,8 @@ db.createCollection("account", {
 db.runCommand({
     createIndexes: "account",
     indexes: [{
-            key: { account: 1 },
-            name: 'account_index',
+            key: { accountName: 1 },
+            name: 'accountName_index',
             unique: true,
             background: true
         },

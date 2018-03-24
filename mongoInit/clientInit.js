@@ -1,5 +1,5 @@
 /* eslint-disable */
-// 在mongo客户端中执行load("/data/db/js/init.js")
+// 在mongo客户端中执行load("/data/db/js/clientInit.js")
 let conn = new Mongo("mongodb_mongodb_1:27017");
 let db = conn.getDB("test");
 
