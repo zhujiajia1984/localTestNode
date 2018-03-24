@@ -19,7 +19,6 @@ let data = [];
 let count = 50;
 let accountNumStart = 10000000000;
 for (let i = 0; i < clientIds.length; i++) {
-    data = [];
     for (let j = 0; j < count; j++) {
         let time1 = new Date();
         let time2 = new Date(time1.getTime() - (1000 * 60 * (i * count + j))); // -i分钟
@@ -30,5 +29,5 @@ for (let i = 0; i < clientIds.length; i++) {
             clientId: clientIds[i]
         })
     }
-    db.getCollection("account").insertMany(data);
 }
+db.getCollection("account").insertMany(data);

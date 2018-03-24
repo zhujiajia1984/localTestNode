@@ -11,10 +11,10 @@ var cors = require('cors');
 //
 var index = require('./routes/index');
 var wxWebMobileTest = require('./routes/wxWebMobileTest');
-var yunacMongoClients = require('./routes/yunacMongo/clients/clients');
 var yunac = require('./routes/yunac');
 var mapHeat = require('./routes/mapHeat');
-
+var yunacMongoClients = require('./routes/yunacMongo/clients/clients');
+var yunacMongoAccounts = require('./routes/yunacMongo/accounts/accounts');
 //
 var app = express();
 
@@ -44,8 +44,9 @@ app.use(['/', '/index', '/apManage', '/groupManage', '/apUser', '/testYunAc', '/
     '/ssidEdit', '/devmap'
 ], yunac);
 app.use('/wxWebMobileTest', wxWebMobileTest);
-app.use('/mongo/clients', yunacMongoClients);
 app.use('/mapHeat', mapHeat);
+app.use('/mongo/clients', yunacMongoClients);
+app.use('/mongo/accounts', yunacMongoAccounts);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
