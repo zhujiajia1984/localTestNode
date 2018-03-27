@@ -29,61 +29,70 @@ router.get('/', function(req, res, next) {
     })
 });
 
-// ////////////////////////////////////////////////////
-// // 新增客户
-// router.post('/', function(req, res, next) {
-//     let data = req.body;
-//     //
-//     let client = new Client(url);
-//     client.addClient(data).then(result => {
-//         res.status(201).json(result);
-//     }).catch(error => {
-//         logger.error(error);
-//         res.status(406).json(error);
-//     })
-// });
+////////////////////////////////////////////////////
+// 新增账号
+router.post('/', function(req, res, next) {
+    let data = req.body;
+    if (typeof(data.clientId) == "undefined") {
+        logger.error("add account need clientId");
+        res.status(406).json({ msg: "clientId missing!" });
+    } else if (typeof(data.accountName) == "undefined") {
+        logger.error("add account need accountName");
+        res.status(406).json({ msg: "accountName missing!" });
+    } else {
+        // add account
+        let client = new Account(url);
+        client.addAccount(data).then(result => {
+            res.status(201).json(result);
+        }).catch(error => {
+            logger.error(error);
+            res.status(406).json(error);
+        })
+    }
 
-// ////////////////////////////////////////////////////
-// // 更新客户
-// router.put('/', function(req, res, next) {
-//     if (typeof(req.query.id) == "undefined") {
-//         logger.error("update client need id");
-//         res.status(406).json({ msg: "id missing!" });
-//     } else if (typeof(req.body.name) == "undefined") {
-//         logger.error("update client need name");
-//         res.status(406).json({ msg: "name missing!" });
-//     } else {
-//         //
-//         let data = req.body;
-//         data.id = req.query.id;
-//         let client = new Client(url);
-//         client.updateClient(data).then(result => {
-//             res.status(201).json(result);
-//         }).catch(error => {
-//             logger.error(error);
-//             res.status(406).json(error);
-//         })
-//     }
-// });
+});
 
-// ////////////////////////////////////////////////////
-// // 删除客户
-// router.delete('/', function(req, res, next) {
-//     if (typeof(req.query.id) == "undefined") {
-//         logger.error("delete client need id");
-//         res.status(406).json({ msg: "id missing!" });
-//     } else {
-//         //
-//         let id = req.query.id;
-//         let client = new Client(url);
-//         client.delClient(id).then(result => {
-//             res.status(204).json({});
-//         }).catch(error => {
-//             logger.error(error);
-//             res.status(406).json(error);
-//         })
-//     }
-// });
+////////////////////////////////////////////////////
+// 更新账号
+router.put('/', function(req, res, next) {
+    if (typeof(req.query.id) == "undefined") {
+        logger.error("update account need id");
+        res.status(406).json({ msg: "id missing!" });
+    } else if (typeof(req.body.accountName) == "undefined") {
+        logger.error("update account need name");
+        res.status(406).json({ msg: "name missing!" });
+    } else {
+        //
+        let data = req.body;
+        data.id = req.query.id;
+        let client = new Account(url);
+        client.updateAccount(data).then(result => {
+            res.status(201).json(result);
+        }).catch(error => {
+            logger.error(error);
+            res.status(406).json(error);
+        })
+    }
+});
+
+////////////////////////////////////////////////////
+// 删除账号
+router.delete('/', function(req, res, next) {
+    if (typeof(req.query.id) == "undefined") {
+        logger.error("delete account need id");
+        res.status(406).json({ msg: "id missing!" });
+    } else {
+        //
+        let id = req.query.id;
+        let client = new Account(url);
+        client.delAccount(id).then(result => {
+            res.status(204).json({});
+        }).catch(error => {
+            logger.error(error);
+            res.status(406).json(error);
+        })
+    }
+});
 
 
 //

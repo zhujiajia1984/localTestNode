@@ -47,6 +47,12 @@ module.exports = class Client {
                 .sort(sortField, sortOrder)
                 .limit(pageSize)
                 .toArray();
+
+            // 获取account和dev数量
+            for (let i = 0; i < r.length; i++) {
+                r[i].accountNum = await db.collection('account').find({ clientId: ObjectID(r[i]._id) }).count();
+            }
+
             // output
             client.close();
             let result = {};

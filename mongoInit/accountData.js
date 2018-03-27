@@ -23,7 +23,7 @@ for (let i = 0; i < clientIds.length; i++) {
         let time1 = new Date();
         let time2 = new Date(time1.getTime() - (1000 * 60 * (i * count + j))); // -i分钟
         data.push({
-            accountName: NumberLong(i * count + j + accountNumStart),
+            accountName: (i * count + j + accountNumStart) + '',
             userName: j % 2 == 0 ? '' : `使用者${i * count + j}`,
             createTime: time2,
             clientId: clientIds[i]

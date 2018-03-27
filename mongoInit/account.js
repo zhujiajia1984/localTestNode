@@ -11,7 +11,9 @@ db.createCollection("account", {
             required: ["accountName", "createTime", "clientId"],
             properties: {
                 accountName: {
-                    bsonType: "long",
+                    bsonType: "string",
+                    maxLength: 11,
+                    minLength: 11,
                     description: "must be a phone number and is required"
                 },
                 userName: {
