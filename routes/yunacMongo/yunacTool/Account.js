@@ -29,15 +29,21 @@ module.exports = class Client {
     async findAccount(data) {
         const client = await MongoClient.connect(this.url);
         const db = client.db("test");
+        let accountName = typeof(data.accountName) == "undefined" ? "undefined" : data.accountName;
         let clientId = typeof(data.clientId) == "undefined" ? "undefined" : data.clientId;
         let current = typeof(data.current) == "undefined" ? 1 : parseInt(data.current);
         let pageSize = typeof(data.pageSize) == "undefined" ? 20 : parseInt(data.pageSize);
         let sortField = typeof(data.sortby) == "undefined" ? '_id' : data.sortby;
         let sortOrder = typeof(data.order) == "undefined" ? -1 : parseInt(data.order);
         let query;
-        if (typeof(data.search) == "undefined" || data.search == "undefined") {
+        if (clientId == "undefined" && accountName != "undefined") {
+            // 按照账号名称查询
+            query = { accountName: accountName };
+        } else if (typeof(data.search) == "undefined" || data.search == "undefined") {
+            // 无查询条件查询
             query = (clientId == "undefined") ? {} : { clientId: ObjectID(clientId) };
         } else {
+            // 有查询条件查询
             query = (clientId == "undefined") ? {} : { clientId: ObjectID(clientId), $or: [{ accountName: { $regex: `${data.search}`, $options: 'i' } }, { userName: { $regex: `${data.search}`, $options: 'i' } }] };
         }
         let total = await db.collection('account').find(query).count();

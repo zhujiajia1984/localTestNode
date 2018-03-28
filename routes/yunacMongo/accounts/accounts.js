@@ -16,7 +16,7 @@ const Account = require('../yunacTool/Account');
 const url = 'mongodb://mongodb_mongodb_1:27017';
 
 ////////////////////////////////////////////////////
-// 查询客户
+// 查询账号
 router.get('/', function(req, res, next) {
     let data = req.query;
     //
