@@ -18,7 +18,7 @@ const url = 'mongodb://mongodb_mongodb_1:27017';
 ////////////////////////////////////////////////////
 // 新增多边形
 router.post('/', function(req, res, next) {
-    let data = req.body.data;
+    let data = req.body;
     //
     let polygon = new Polygon(url);
     polygon.addPolygon(data).then(result => {

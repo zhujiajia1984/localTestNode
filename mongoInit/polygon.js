@@ -11,10 +11,10 @@ db.createCollection("polygon", {
             required: ["lng", "lat"],
             properties: {
                 lng: {
-                    bsonType: "string",
+                    bsonType: "double",
                 },
                 lat: {
-                    bsonType: "string",
+                    bsonType: "double",
                 },
                 createTime: {
                     bsonType: "date"

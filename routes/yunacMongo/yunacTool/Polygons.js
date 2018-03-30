@@ -17,6 +17,7 @@ module.exports = class Polygon {
         for (let i = 0; i < data.length; i++) {
             data[i].createTime = curDate;
         }
+        await db.collection('polygon').deleteMany({});
         let result = await db.collection('polygon').insertMany(data);
         assert.equal(data.length, result.insertedCount);
         client.close();
