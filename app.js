@@ -16,6 +16,7 @@ var mapHeat = require('./routes/mapHeat');
 var yunacMongoClients = require('./routes/yunacMongo/clients/clients');
 var yunacMongoAccounts = require('./routes/yunacMongo/accounts/accounts');
 var yunacApiUserAuth = require('./routes/yunacApi/userAuth');
+var yunacMongoPolygons = require('./routes/yunacMongo/polygons/polygons');
 //
 var app = express();
 
@@ -26,7 +27,7 @@ app.set('view engine', 'ejs');
 // 
 app.use(cors());
 // uncomment after placing your favicon in /public
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+// app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 // app.use(logger('dev'));
 app.use(log4js.connectLogger(logger, { level: 'auto' }));
 app.use(bodyParser.json());
@@ -48,6 +49,7 @@ app.use('/wxWebMobileTest', wxWebMobileTest);
 app.use('/mapHeat', mapHeat);
 app.use('/mongo/clients', yunacMongoClients);
 app.use('/mongo/accounts', yunacMongoAccounts);
+app.use('/mongo/polygons', yunacMongoPolygons);
 app.use('/yunacApi/userAuth', yunacApiUserAuth);
 
 // catch 404 and forward to error handler
