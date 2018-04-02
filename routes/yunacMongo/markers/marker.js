@@ -4,10 +4,42 @@
  * 查询marker：get     https://test.weiquaninfo.cn/mongo/polygons
  * 删除marker：delete  https://test.weiquaninfo.cn/mongo/polygons?id=XXX
  * 修改marker：put     https://test.weiquaninfo.cn/mongo/polygons?id=XXX
+ * 上传marker缩略图测试：post https://test.weiquaninfo.cn/mongo/markers/upload
  */
 var express = require('express');
 var router = express.Router();
 var logger = require('../../../logs/log4js').logger;
+var multer = require('multer');
+var storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, 'public/cloudac/uploads/')
+    },
+    filename: function(req, file, cb) {
+        let extName = ''; //后缀名
+        switch (file.mimetype) {
+            case 'image/jpg':
+                extName = 'jpg';
+                break;
+            case 'image/jpeg':
+                extName = 'jpg';
+                break;
+            case 'image/png':
+                extName = 'png';
+                break;
+        }
+        cb(null, `${file.fieldname}-${Date.now()}.${extName}`);
+    }
+})
+var upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype != "image/jpg" && file.mimetype != "image/jpeg" && file.mimetype != "image/png") {
+            cb(new Error('only support jpg/jpeg/png file!'));
+        } else {
+            cb(null, true);
+        }
+    }
+});
 
 // class
 const Marker = require('../yunacTool/Marker.js');
@@ -15,6 +47,13 @@ const Marker = require('../yunacTool/Marker.js');
 //
 const url = 'mongodb://mongodb_mongodb_1:27017';
 // const url = 'mongodb://localhost:27017';
+
+////////////////////////////////////////////////////
+// 上传marker缩略图测试
+router.post('/upload', upload.single('avatar'), function(req, res, next) {
+    console.log(req.file);
+    res.status(200).send(req.file.path.slice(6)); /*去除public*/
+})
 
 ////////////////////////////////////////////////////
 // 新增marker
