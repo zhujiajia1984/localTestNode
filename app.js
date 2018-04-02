@@ -17,6 +17,7 @@ var yunacMongoClients = require('./routes/yunacMongo/clients/clients');
 var yunacMongoAccounts = require('./routes/yunacMongo/accounts/accounts');
 var yunacApiUserAuth = require('./routes/yunacApi/userAuth');
 var yunacMongoPolygons = require('./routes/yunacMongo/polygons/polygons');
+var yunacMongoMarkers = require('./routes/yunacMongo/markers/marker');
 //
 var app = express();
 
@@ -50,6 +51,7 @@ app.use('/mapHeat', mapHeat);
 app.use('/mongo/clients', yunacMongoClients);
 app.use('/mongo/accounts', yunacMongoAccounts);
 app.use('/mongo/polygons', yunacMongoPolygons);
+app.use('/mongo/markers', yunacMongoMarkers);
 app.use('/yunacApi/userAuth', yunacApiUserAuth);
 
 // catch 404 and forward to error handler
