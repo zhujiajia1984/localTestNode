@@ -1,10 +1,11 @@
 /**
  * Created by zjj on 2018/4/1
  * 新增marker：post    https://test.weiquaninfo.cn/mongo/markers
- * 查询marker：get     https://test.weiquaninfo.cn/mongo/polygons
- * 删除marker：delete  https://test.weiquaninfo.cn/mongo/polygons?id=XXX
- * 修改marker：put     https://test.weiquaninfo.cn/mongo/polygons?id=XXX
- * 上传marker缩略图测试：post https://test.weiquaninfo.cn/mongo/markers/upload
+ * 查询marker：get     https://test.weiquaninfo.cn/mongo/markers
+ * 删除marker：delete  https://test.weiquaninfo.cn/mongo/markers?id=XXX
+ * 修改marker：put     https://test.weiquaninfo.cn/mongo/markers?id=XXX
+ * 上传marker缩略图：post https://test.weiquaninfo.cn/mongo/markers/upload
+ * 上传marker语音：  post https://test.weiquaninfo.cn/mongo/markers/uploadAudio
  */
 var express = require('express');
 var router = express.Router();
@@ -33,8 +34,36 @@ var storage = multer.diskStorage({
 var upload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
-        if (file.mimetype != "image/jpg" && file.mimetype != "image/jpeg" && file.mimetype != "image/png") {
-            cb(new Error('only support jpg/jpeg/png file!'));
+        if (file.mimetype != "image/jpg" &&
+            file.mimetype != "image/jpeg" &&
+            file.mimetype != "image/png"
+        ) {
+            cb(new Error('only support jpg/jpeg/png/mp3 file!'));
+        } else {
+            cb(null, true);
+        }
+    }
+});
+var storageAudio = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, 'public/cloudac/uploads/audio')
+    },
+    filename: function(req, file, cb) {
+        let extName = ''; //后缀名
+        switch (file.mimetype) {
+            case 'audio/mp3':
+                extName = 'mp3';
+                break;
+        }
+        cb(null, `${file.fieldname}-${Date.now()}.${extName}`);
+    }
+});
+var uploadAudio = multer({
+    storage: storageAudio,
+    fileFilter: (req, file, cb) => {
+        console.log(file.mimetype);
+        if (file.mimetype != "audio/mp3") {
+            cb(new Error('only support mp3 file!'));
         } else {
             cb(null, true);
         }
@@ -51,7 +80,14 @@ const url = 'mongodb://mongodb_mongodb_1:27017';
 ////////////////////////////////////////////////////
 // 上传marker缩略图测试
 router.post('/upload', upload.single('avatar'), function(req, res, next) {
-    console.log(req.file);
+    // console.log(req.file);
+    res.status(200).send(req.file.path.slice(6)); /*去除public*/
+})
+
+////////////////////////////////////////////////////
+// 上传marker语音
+router.post('/uploadAudio', uploadAudio.single('audio'), function(req, res, next) {
+    // console.log(req.file);
     res.status(200).send(req.file.path.slice(6)); /*去除public*/
 })
 
@@ -94,9 +130,13 @@ router.post('/', function(req, res, next) {
 ////////////////////////////////////////////////////
 // 查询marker
 router.get('/', function(req, res, next) {
+    let id = null;
+    if (typeof(req.query.id) != "undefined") {
+        id = req.query.id;
+    }
     //
     let marker = new Marker(url);
-    marker.findMarker().then(result => {
+    marker.findMarker(id).then(result => {
         res.status(200).json(result);
     }).catch(error => {
         logger.error(error);

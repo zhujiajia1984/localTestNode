@@ -20,7 +20,9 @@ module.exports = class Marker {
             lng: data.lng,
             lat: data.lat,
             thumb: data.thumb,
+            audio: typeof(data.audio) == "undefined" ? '' : data.audio,
             createTime: new Date(),
+            richText: typeof(data.richText) == "undefined" ? '' : data.richText,
         });
         assert.equal(1, result.insertedCount);
         client.close();
@@ -28,10 +30,14 @@ module.exports = class Marker {
     }
 
     // 查询marker
-    async findMarker() {
+    async findMarker(id) {
         const client = await MongoClient.connect(this.url);
         const db = client.db("test");
-        let result = await db.collection('marker').find({}).toArray();
+        let query = {};
+        if (id) {
+            query = { _id: new ObjectID(id) };
+        }
+        let result = await db.collection('marker').find(query).toArray();
 
         // output
         client.close();
@@ -60,6 +66,8 @@ module.exports = class Marker {
                 lng: data.lng,
                 lat: data.lat,
                 thumb: data.thumb,
+                audio: typeof(data.audio) == "undefined" ? '' : data.audio,
+                richText: typeof(data.richText) == "undefined" ? '' : data.richText,
             }
         });
         assert.equal(1, result.matchedCount);
