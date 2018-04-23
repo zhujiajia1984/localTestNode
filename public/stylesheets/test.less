@@ -1,0 +1,24 @@
+// less
+.my-mixin {
+	color: black;
+}
+
+.my-other-mixin() {
+	//加()
+	color: red;
+}
+
+.my-selector-mixin() {
+	// 选择器
+	&:hover {
+		border: 1px solid red;
+	}
+}
+
+.test {
+	.my-mixin;
+	.my-other-mixin();
+	.my-selector-mixin()
+}
+
+//named Parameters

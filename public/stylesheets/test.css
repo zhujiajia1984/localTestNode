@@ -1,0 +1,10 @@
+.my-mixin {
+  color: black;
+}
+.test {
+  color: black;
+  color: red;
+}
+.test:hover {
+  border: 1px solid red;
+}
